@@ -33,26 +33,16 @@ use serial_terminal qw(add_serial_console);
 
 sub run {
     my $self = shift;
-    $self->select_serial_terminal;
-
-    pkcon_quit unless check_var('DESKTOP', 'textmode');
-
-    zypper_call(q{mr -d $(zypper lr | awk -F '|' '{IGNORECASE=1} /nvidia/ {print $2}')}, exitcode => [0, 3]);
-
-    add_test_repositories;
-
-    fully_patch_system;
-
-    assert_script_run('rpm -ql --changelog kernel-default >/tmp/kernel_changelog.log');
-    upload_logs('/tmp/kernel_changelog.log');
-
-    # DESKTOP can be gnome, but patch is happening in shell, thus always force reboot in shell
-    power_action('reboot', textmode => 1);
-    $self->wait_boot(bootloader_time => 150);
+    select_console('root-console');
+    script_run('ps aux | grep X');
+    script_run('ls -l /dev/tty*');
 }
 
 sub test_flags {
     return {fatal => 1};
 }
 
+sub post_fail_hook { }
+
 1;
+
