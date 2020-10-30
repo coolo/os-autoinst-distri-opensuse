@@ -59,6 +59,7 @@ sub expand_patterns {
             my @sle15;
             push @sle15, qw(base minimal_base enhanced_base apparmor sw_management yast2_basis);
             push @sle15, qw(x11 gnome_basic fonts)                                                       if check_var('DESKTOP', 'gnome');
+            push @sle15, qw(x11_yast)                                                                    if is_sle('15-sp2+');
             push @sle15, qw(gnome gnome_x11 office x11_enhanced gnome_imaging gnome_multimedia x11_yast) if check_var('SLE_PRODUCT', 'sled') || get_var('SCC_ADDONS') =~ m/we/;
             return [@sle15];
         }
@@ -100,6 +101,7 @@ sub expand_patterns {
               technical_writing books) if get_var('SCC_ADDONS') =~ m/we/;
             push @all, qw(gnome_basic)               if get_var('SCC_ADDONS') =~ m/desktop/;
             push @all, qw(multimedia laptop imaging) if get_var('SCC_ADDONS') =~ m/desktop/ && check_var('SLE_PRODUCT', 'sled');
+            push @all, qw(x11_yast)                  if is_sle('15-sp2+');
         }
         elsif (is_sle('12+')) {
             push @all, qw(Minimal documentation 32bit apparmor x11 WBEM
