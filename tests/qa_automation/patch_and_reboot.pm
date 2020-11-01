@@ -34,8 +34,6 @@ use serial_terminal qw(add_serial_console);
 sub run {
     my $self = shift;
     select_console('root-console');
-    script_run('ps aux | grep X');
-    script_run('ls -l /dev/tty?');
     $self->problem_detection();
 }
 

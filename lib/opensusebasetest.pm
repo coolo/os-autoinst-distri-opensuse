@@ -182,11 +182,7 @@ sub problem_detection {
     clear_console;
 
     # Errors in journal
-    $self->save_and_upload_log("journalctl --no-pager -p 'err' -o short-precise", "journalctl-errors.txt", {screenshot => 1, noupload => 1});
-    clear_console;
-
-    # Tracebacks in journal
-    $self->save_and_upload_log('journalctl -o short-precise | grep -i traceback', "journalctl-tracebacks.txt", {screenshot => 1, noupload => 1});
+    $self->save_and_upload_log("journalctl --no-pager", "journalctl.txt", {screenshot => 1, noupload => 1});
     clear_console;
 
     script_run 'tar cvvJf problem_detection_logs.tar.xz *';

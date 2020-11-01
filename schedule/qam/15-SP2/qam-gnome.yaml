@@ -8,12 +8,10 @@ schedule:
 - autoyast/login
 - autoyast/wicked
 - autoyast/repos
-- autoyast/clone
-- autoyast/logs
 - autoyast/autoyast_reboot
 - '{{grub}}'
 - installation/first_boot
-- qa_automation/patch_and_reboot
+- autoyast/logs
 conditional_schedule:
   grub:
     ARCH:

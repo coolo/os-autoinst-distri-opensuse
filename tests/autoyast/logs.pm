@@ -28,6 +28,7 @@ sub run {
     my $self = shift;
     $self->result('ok');    # default result
 
+    select_console('root-console');
     # save all logs that might be useful
 
     type_string "systemctl status > /var/log/systemctl_status\n";
@@ -37,6 +38,8 @@ sub run {
     type_string "echo UPLOADFINISH >/dev/$serialdev\n";
     wait_serial("UPLOADFINISH", 200);
     save_screenshot;
+
+    $self->problem_detection();
 }
 
 1;
