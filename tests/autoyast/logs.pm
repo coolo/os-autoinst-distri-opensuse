@@ -21,7 +21,7 @@
 
 use strict;
 use warnings;
-use base 'basetest';
+use base 'opensusebasetest';
 use testapi;
 
 sub run {
