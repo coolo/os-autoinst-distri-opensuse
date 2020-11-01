@@ -33,7 +33,7 @@ sub run {
     }
     # We are already in console, so reboot from it and do not switch to x11 or root console
     # Note, on s390x with SLE15 VNC is not running even if enabled in the profile
-    power_action('poweroff', , textmode => 1);
+    power_action('reboot', textmode => 1, keepconsole => 1);
 }
 
 1;

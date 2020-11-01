@@ -11,6 +11,8 @@ schedule:
 - autoyast/clone
 - autoyast/logs
 - autoyast/autoyast_reboot
+- '{{grub}}'
+- installation/first_boot
 conditional_schedule:
   grub:
     ARCH:

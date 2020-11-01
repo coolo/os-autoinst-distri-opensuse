@@ -818,7 +818,14 @@ sub handle_emergency_if_needed {
 
 sub handle_displaymanager_login {
     my ($self, %args) = @_;
-    assert_screen [qw(displaymanager emergency-shell emergency-mode)], $args{ready_time};
+    my @tags = qw(displaymanager emergency-shell emergency-mode);
+    push @tags, 'linux-login' if get_var('AUTOYAST') && check_var('DESKTOP', 'gnome') && is_sle('=15-sp2');
+    assert_screen \@tags, $args{ready_time};
+    if (match_has_tag('linux-login')) {
+        record_soft_failure 'bsc#1174436';
+        select_console 'root-console';
+        systemctl('restart display-manager');
+    }
     handle_emergency_if_needed;
     handle_login unless $args{nologin};
 }
