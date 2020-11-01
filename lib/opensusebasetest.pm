@@ -965,46 +965,6 @@ sub wait_boot_past_bootloader {
     }
 
     $self->handle_displaymanager_login(ready_time => $ready_time, nologin => $nologin) if (get_var("NOAUTOLOGIN") || get_var("XDMUSED") || $nologin || $forcenologin);
-    return if $args{nologin};
-
-    my @tags = qw(generic-desktop emergency-shell emergency-mode);
-    push(@tags, 'opensuse-welcome') if opensuse_welcome_applicable;
-
-    # boo#1102563 - autologin fails on aarch64 with GNOME on current Tumbleweed
-    if (!is_sle('<=15') && !is_leap('<=15.0') && check_var('ARCH', 'aarch64') && check_var('DESKTOP', 'gnome')) {
-        push(@tags, 'displaymanager');
-        # Workaround for bsc#1169723
-        push(@tags, 'guest-disable-display');
-    }
-    # bsc#1177446 - Polkit popup appears at first login, again
-    if (is_sle && !is_sle('<=15-SP1')) {
-        push(@tags, 'authentication-required-user-settings');
-    }
-
-    # GNOME and KDE get into screenlock after 5 minutes without activities.
-    # using multiple check intervals here then we can get the wrong desktop
-    # screenshot at least in case desktop screenshot changed, otherwise we get
-    # the screenlock screenshot.
-    my $timeout        = $ready_time;
-    my $check_interval = 30;
-    while ($timeout > $check_interval) {
-        my $ret = check_screen \@tags, $check_interval;
-        last if $ret;
-        $timeout -= $check_interval;
-    }
-    # if we reached a logged in desktop we are done here
-    return 1 if match_has_tag('generic-desktop') || match_has_tag('opensuse-welcome');
-    # the last check after previous intervals must be fatal
-    assert_screen \@tags, $check_interval;
-    handle_emergency_if_needed;
-
-    handle_broken_autologin_boo1102563() if match_has_tag('displaymanager');
-    handle_additional_polkit_windows     if match_has_tag('authentication-required-user-settings');
-    if (match_has_tag('guest-disable-display')) {
-        record_soft_failure 'bsc#1169723 - [Build 174.1] openQA test fails in first_boot - Guest disabled display shown when boot up after migration';
-        send_key 'ret';
-    }
-    mouse_hide(1);
 }
 
 =head2 wait_boot
