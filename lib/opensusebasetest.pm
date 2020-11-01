@@ -178,7 +178,7 @@ sub problem_detection {
     clear_console;
 
     # Errors, warnings, exceptions, and crashes mentioned in dmesg
-    $self->save_and_upload_log("dmesg'", "dmesg.txt", {screenshot => 1, noupload => 1});
+    $self->save_and_upload_log("dmesg", "dmesg.txt", {screenshot => 1, noupload => 1});
     clear_console;
 
     # Errors in journal
