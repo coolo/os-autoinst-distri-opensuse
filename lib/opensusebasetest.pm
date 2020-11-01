@@ -171,12 +171,14 @@ sub problem_detection {
     $self->save_and_upload_log('systemctl --all --state=failed', "failed-system-services.txt", {screenshot => 1, noupload => 1});
     clear_console;
 
-    # Unapplied configuration files
-    $self->save_and_upload_log("find /* -name '*.rpmnew'", "unapplied-configuration-files.txt", {screenshot => 1, noupload => 1});
+    $self->save_and_upload_log('ps aux', "ps-aux.txt", {screenshot => 1, noupload => 1});
+    clear_console;
+
+    $self->save_and_upload_log('ls -l /dev/tty?', "ls-dev.txt", {screenshot => 1, noupload => 1});
     clear_console;
 
     # Errors, warnings, exceptions, and crashes mentioned in dmesg
-    $self->save_and_upload_log("dmesg | grep -i 'error\\|warn\\|exception\\|crash'", "dmesg-errors.txt", {screenshot => 1, noupload => 1});
+    $self->save_and_upload_log("dmesg'", "dmesg.txt", {screenshot => 1, noupload => 1});
     clear_console;
 
     # Errors in journal
@@ -186,43 +188,6 @@ sub problem_detection {
     # Tracebacks in journal
     $self->save_and_upload_log('journalctl -o short-precise | grep -i traceback', "journalctl-tracebacks.txt", {screenshot => 1, noupload => 1});
     clear_console;
-
-    # Segmentation faults
-    $self->save_and_upload_log("coredumpctl list", "segmentation-faults-list.txt", {screenshot => 1, noupload => 1});
-    $self->save_and_upload_log("coredumpctl info", "segmentation-faults-info.txt", {screenshot => 1, noupload => 1});
-    # Save core dumps
-    type_string "mkdir -p coredumps\n";
-    type_string 'awk \'/Storage|Coredump/{printf("cp %s ./coredumps/\n",$2)}\' segmentation-faults-info.txt | sh';
-    type_string "\n";
-    clear_console;
-
-    # Broken links
-    $self->save_and_upload_log(
-"find / -type d \\( -path /proc -o -path /run -o -path /.snapshots -o -path /var \\) -prune -o -xtype l -exec ls -l --color=always {} \\; -exec rpmquery -f {} \\;",
-        "broken-symlinks.txt",
-        {screenshot => 1, noupload => 1});
-    clear_console;
-
-    # Binaries with missing libraries
-    $self->save_and_upload_log("
-IFS=:
-for path in \$PATH; do
-    for bin in \$path/*; do
-        ldd \$bin 2> /dev/null | grep 'not found' && echo -n Affected binary: \$bin 'from ' && rpmquery -f \$bin
-    done
-done", "binaries-with-missing-libraries.txt", {timeout => 60, noupload => 1});
-    clear_console;
-
-    # rpmverify problems
-    $self->save_and_upload_log("rpmverify -a | grep -v \"[S5T].* c \"", "rpmverify-problems.txt", {timeout => 1200, screenshot => 1, noupload => 1});
-    clear_console;
-
-    # VMware specific
-    if (check_var('VIRSH_VMM_FAMILY', 'vmware')) {
-        assert_script_run('vm-support');
-        upload_logs('vm-*.*.tar.gz');
-        clear_console;
-    }
 
     script_run 'tar cvvJf problem_detection_logs.tar.xz *';
     upload_logs('problem_detection_logs.tar.xz');
@@ -823,11 +788,8 @@ sub handle_displaymanager_login {
     assert_screen \@tags, $args{ready_time};
     if (match_has_tag('linux-login')) {
         record_soft_failure 'bsc#1174436';
-        select_console 'root-console';
-        systemctl('restart display-manager');
     }
-    handle_emergency_if_needed;
-    handle_login unless $args{nologin};
+    select_console 'root-console';
 }
 
 =head2 handle_pxeboot

@@ -35,7 +35,8 @@ sub run {
     my $self = shift;
     select_console('root-console');
     script_run('ps aux | grep X');
-    script_run('ls -l /dev/tty*');
+    script_run('ls -l /dev/tty?');
+    $self->problem_detection();
 }
 
 sub test_flags {
