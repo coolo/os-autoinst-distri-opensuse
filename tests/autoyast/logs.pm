@@ -31,6 +31,13 @@ sub run {
     select_console('root-console');
     # save all logs that might be useful
 
+    script_run('systemd-analyze blame > /var/log/systemd_blame.txt');
+    script_run('ps aux > /var/log/ps-aux.txt');
+    script_run('ls -l /dev/tty? > /var/log/ls-dev.txt');
+    script_run('journalctl --no-pager > /var/log/journalctl.txt');
+    script_run('loginctl user-status > /var/log/loginctl_user-status.txt');
+    script_run('loginctl session-status c1 > /var/log/loginctl_session-status-c1.txt');
+    script_run('ps -eo pid,command,lsession > /var/log/ps_lsession.txt');
     type_string "systemctl status > /var/log/systemctl_status\n";
     type_string
 "tar cjf /tmp/logs.tar.bz2 --exclude=/etc/{brltty,udev/hwdb.bin} --exclude=/var/log/{YaST2,zypp,{pbl,zypper}.log} /var/{log,adm/autoinstall} /run/systemd/system/ /usr/lib/systemd/system/ /boot/grub2/{device.map,grub{.cfg,env}} /etc/\n";
@@ -38,7 +45,6 @@ sub run {
     type_string "echo UPLOADFINISH >/dev/$serialdev\n";
     wait_serial("UPLOADFINISH", 200);
     save_screenshot;
-
     $self->problem_detection();
 }
 
