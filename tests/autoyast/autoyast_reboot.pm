@@ -34,6 +34,7 @@ sub run {
     # We are already in console, so reboot from it and do not switch to x11 or root console
     # Note, on s390x with SLE15 VNC is not running even if enabled in the profile
     select_console 'root-console';
+    assert_script_run 'zypper -n rm btrfsmaintenance';
     assert_script_run 'sed -i -e "s,#Enable=true,Enable=true," /etc/gdm/custom.conf';
     script_run 'cat /etc/gdm/custom.conf';
     save_screenshot;
