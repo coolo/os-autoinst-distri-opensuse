@@ -27,14 +27,9 @@ use version_utils 'is_sle';
 use utils qw(zypper_call);
 
 sub run {
-    if (is_sle('=15-sp2')) {
-        record_soft_failure('bsc#1174436');
-        zypper_call('rm btrfsmaintenance');
-    }
     # We are already in console, so reboot from it and do not switch to x11 or root console
     # Note, on s390x with SLE15 VNC is not running even if enabled in the profile
     select_console 'root-console';
-    #assert_script_run 'zypper -n rm btrfsmaintenance';
     assert_script_run 'zypper ar https://download.suse.de/ibs/home:/fbui:/branches:/SUSE:/SLE-15:/Update/SLE_15_SP2/ fbui';
     assert_script_run 'zypper -n in --from fbui systemd';
     assert_script_run 'sed -i -e "s,#Enable=true,Enable=true," /etc/gdm/custom.conf';
